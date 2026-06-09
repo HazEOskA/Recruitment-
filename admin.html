@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — Kandydaci Utrecht</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+  /* LOGIN */
+  .login-wrap {
+    display: flex; align-items: center; justify-content: center;
+    min-height: 100vh; padding: 1rem;
+  }
+  .login-box {
+    background: #1e293b; border: 1px solid #334155; border-radius: 16px;
+    padding: 2rem; max-width: 360px; width: 100%; text-align: center;
+  }
+  .login-box h2 { color: #f97316; margin-bottom: 1.5rem; font-size: 1.3rem; }
+  .login-box input {
+    width: 100%; padding: 0.75rem 1rem; background: #0f172a;
+    border: 1px solid #334155; color: #e2e8f0; border-radius: 8px;
+    font-size: 1rem; margin-bottom: 1rem;
+  }
+  .login-box button {
+    width: 100%; background: #f97316; color: white; border: none;
+    border-radius: 8px; padding: 0.75rem; font-size: 1rem; font-weight: 700;
+    cursor: pointer;
+  }
+  .login-box button:hover { background: #ea580c; }
+  .login-err { color: #ef4444; font-size: 0.85rem; margin-top: 0.5rem; }
+
+  /* ADMIN PANEL */
+  .admin { display: none; }
+
+  .topbar {
+    background: #1e293b; border-bottom: 1px solid #334155;
+    padding: 1rem 1.5rem; display: flex; align-items: center;
+    justify-content: space-between; flex-wrap: wrap; gap: 0.8rem;
+  }
+  .topbar h1 { font-size: 1.1rem; color: #f97316; }
+  .topbar-actions { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .btn {
+    padding: 0.45rem 1rem; border-radius: 8px; border: none;
+    font-size: 0.85rem; font-weight: 600; cursor: pointer;
+  }
+  .btn-orange { background: #f97316; color: white; }
+  .btn-orange:hover { background: #ea580c; }
+  .btn-gray { background: #334155; color: #e2e8f0; }
+  .btn-gray:hover { background: #475569; }
+  .btn-red { background: #7f1d1d; color: #fca5a5; }
+  .btn-red:hover { background: #991b1b; }
+
+  .stats-bar {
+    display: flex; flex-wrap: wrap; gap: 1rem;
+    padding: 1rem 1.5rem; background: #0f172a;
+    border-bottom: 1px solid #1e293b;
+  }
+  .stat {
+    background: #1e293b; border: 1px solid #334155; border-radius: 10px;
+    padding: 0.7rem 1.2rem; min-width: 110px;
+  }
+  .stat .n { font-size: 1.5rem; font-weight: 700; color: #f97316; }
+  .stat .l { font-size: 0.72rem; color: #94a3b8; text-transform: uppercase; }
+
+  .filters {
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    padding: 0.8rem 1.5rem; background: #1e293b;
+    border-bottom: 1px solid #334155;
+  }
+  .filters select, .filters input {
+    background: #0f172a; border: 1px solid #334155;
+    color: #e2e8f0; padding: 0.4rem 0.7rem; border-radius: 6px;
+    font-size: 0.85rem;
+  }
+
+  .table-wrap { overflow-x: auto; padding: 1rem 1.5rem; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.82rem; min-width: 700px; }
+  th {
+    background: #1e293b; color: #94a3b8; padding: 0.6rem 0.8rem;
+    text-align: left; font-size: 0.75rem; text-transform: uppercase;
+    letter-spacing: 0.05em; border-bottom: 1px solid #334155;
+    white-space: nowrap;
+  }
+  tr:hover td { background: #1e293b; }
+  td { padding: 0.65rem 0.8rem; border-bottom: 1px solid #1e293b; vertical-align: middle; }
+
+  .badge {
+    display: inline-block; padding: 0.2rem 0.6rem; border-radius: 20px;
+    font-size: 0.72rem; font-weight: 600; white-space: nowrap;
+  }
+  .badge-prod { background: #1e3a5f; color: #93c5fd; }
+  .badge-clean { background: #064e3b; color: #34d399; }
+  .badge-both { background: #451a03; color: #fb923c; }
+  .badge-new { background: #312e81; color: #a5b4fc; }
+  .badge-called { background: #065f46; color: #34d399; }
+  .badge-placed { background: #713f12; color: #fbbf24; }
+  .badge-reject { background: #450a0a; color: #f87171; }
+
+  .avail-dot {
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; margin-right: 4px;
+  }
+  .dot-now { background: #22c55e; }
+  .dot-week { background: #f59e0b; }
+  .dot-2weeks { background: #94a3b8; }
+
+  select.status-sel {
+    background: #1e293b; border: 1px solid #334155; color: #e2e8f0;
+    padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.8rem;
+    cursor: pointer;
+  }
+
+  .del-btn {
+    background: none; border: none; color: #f87171;
+    cursor: pointer; font-size: 1rem; padding: 0.2rem 0.5rem;
+  }
+  .del-btn:hover { color: #ef4444; }
+
+  .empty { text-align: center; padding: 3rem; color: #475569; }
+
+  .phone-link { color: #f97316; text-decoration: none; font-weight: 600; }
+  .phone-link:hover { text-decoration: underline; }
+
+  @media (max-width: 600px) {
+    .topbar { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="login-wrap" id="loginWrap">
+  <div class="login-box">
+    <h2>🔐 Panel Admina</h2>
+    <input type="password" id="pwdInput" placeholder="Hasło / Wachtwoord" onkeydown="if(event.key==='Enter')doLogin()">
+    <button onclick="doLogin()">Zaloguj się</button>
+    <p class="login-err" id="loginErr"></p>
+    <p style="margin-top:1rem; font-size:0.72rem; color:#475569">Domyślne hasło: <strong>utrecht2026</strong></p>
+  </div>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="admin" id="adminPanel">
+  <div class="topbar">
+    <h1>📋 Kandydaci Utrecht</h1>
+    <div class="topbar-actions">
+      <button class="btn btn-orange" onclick="exportCSV()">⬇️ Eksportuj CSV</button>
+      <button class="btn btn-gray" onclick="location.href='index.html'">🌐 Strona</button>
+      <button class="btn btn-red" onclick="clearAll()">🗑️ Wyczyść wszystko</button>
+    </div>
+  </div>
+
+  <div class="stats-bar" id="statsBar"></div>
+
+  <div class="filters">
+    <select id="filterType" onchange="render()">
+      <option value="">Wszystkie typy pracy</option>
+      <option value="production">⚙️ Produkcja</option>
+      <option value="cleaning">🧹 Sprzątanie</option>
+      <option value="both">✅ Oboje</option>
+    </select>
+    <select id="filterAvail" onchange="render()">
+      <option value="">Każda dostępność</option>
+      <option value="now">🟢 Od zaraz</option>
+      <option value="week">📅 Za tydzień</option>
+      <option value="2weeks">⏳ Za 2 tyg.</option>
+    </select>
+    <select id="filterStatus" onchange="render()">
+      <option value="">Każdy status</option>
+      <option value="new">🆕 Nowy</option>
+      <option value="called">📞 Zadzwoniono</option>
+      <option value="placed">✅ Zatrudniony</option>
+      <option value="reject">❌ Odrzucony</option>
+    </select>
+    <input type="text" id="filterSearch" placeholder="Szukaj po nazwisku/mieście..." oninput="render()" style="min-width:200px">
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Imię i nazwisko</th>
+          <th>Telefon</th>
+          <th>Praca</th>
+          <th>Dostępność</th>
+          <th>Zmiana</th>
+          <th>Języki</th>
+          <th>Transport</th>
+          <th>Miasto</th>
+          <th>Status</th>
+          <th>Data</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="empty" id="emptyMsg" style="display:none">Brak kandydatów. Udostępnij stronę rejestracji!</div>
+  </div>
+</div>
+
+<script>
+const PASS_HASH = 'utrecht2026';
+
+function doLogin() {
+  const val = document.getElementById('pwdInput').value;
+  if (val === PASS_HASH) {
+    document.getElementById('loginWrap').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    render();
+  } else {
+    document.getElementById('loginErr').textContent = 'Złe hasło!';
+  }
+}
+
+function getCandidates() {
+  return JSON.parse(localStorage.getItem('candidates') || '[]');
+}
+function saveCandidates(arr) {
+  localStorage.setItem('candidates', JSON.stringify(arr));
+}
+
+function jobBadge(t) {
+  if (t === 'production') return '<span class="badge badge-prod">⚙️ Produkcja</span>';
+  if (t === 'cleaning') return '<span class="badge badge-clean">🧹 Sprzątanie</span>';
+  if (t === 'both') return '<span class="badge badge-both">✅ Oboje</span>';
+  return '—';
+}
+
+function availBadge(a) {
+  const map = { now: ['dot-now','Od zaraz'], week: ['dot-week','Za tydzień'], '2weeks': ['dot-2weeks','Za 2 tyg.'] };
+  const [cls, lbl] = map[a] || ['dot-2weeks', a || '—'];
+  return `<span class="avail-dot ${cls}"></span>${lbl}`;
+}
+
+function statusSel(id, current) {
+  const opts = [['new','🆕 Nowy'],['called','📞 Zadzwoniono'],['placed','✅ Zatrudniony'],['reject','❌ Odrzucony']];
+  return `<select class="status-sel" onchange="updateStatus(${id},this.value)">
+    ${opts.map(([v,l]) => `<option value="${v}"${v===current?' selected':''}>${l}</option>`).join('')}
+  </select>`;
+}
+
+function updateStatus(id, val) {
+  const arr = getCandidates();
+  const c = arr.find(x => x.id === id);
+  if (c) { c.status = val; saveCandidates(arr); renderStats(arr); }
+}
+
+function deleteCandidate(id) {
+  if (!confirm('Usunąć kandydata?')) return;
+  saveCandidates(getCandidates().filter(x => x.id !== id));
+  render();
+}
+
+function renderStats(arr) {
+  const total = arr.length;
+  const prod = arr.filter(x => x.jobType === 'production' || x.jobType === 'both').length;
+  const clean = arr.filter(x => x.jobType === 'cleaning' || x.jobType === 'both').length;
+  const avail = arr.filter(x => x.availability === 'now').length;
+  const placed = arr.filter(x => x.status === 'placed').length;
+  document.getElementById('statsBar').innerHTML = `
+    <div class="stat"><div class="n">${total}</div><div class="l">Wszystkich</div></div>
+    <div class="stat"><div class="n">${prod}</div><div class="l">Produkcja</div></div>
+    <div class="stat"><div class="n">${clean}</div><div class="l">Sprzątanie</div></div>
+    <div class="stat"><div class="n">${avail}</div><div class="l">Od zaraz</div></div>
+    <div class="stat"><div class="n">${placed}</div><div class="l">Zatrudnieni</div></div>
+  `;
+}
+
+function render() {
+  let arr = getCandidates();
+  renderStats(arr);
+
+  const fType = document.getElementById('filterType').value;
+  const fAvail = document.getElementById('filterAvail').value;
+  const fStatus = document.getElementById('filterStatus').value;
+  const fSearch = document.getElementById('filterSearch').value.toLowerCase();
+
+  if (fType) arr = arr.filter(x => x.jobType === fType || x.jobType === 'both');
+  if (fAvail) arr = arr.filter(x => x.availability === fAvail);
+  if (fStatus) arr = arr.filter(x => x.status === fStatus);
+  if (fSearch) arr = arr.filter(x =>
+    (x.name||'').toLowerCase().includes(fSearch) ||
+    (x.city||'').toLowerCase().includes(fSearch) ||
+    (x.phone||'').includes(fSearch)
+  );
+
+  arr = arr.sort((a,b) => b.id - a.id);
+
+  const tbody = document.getElementById('tbody');
+  const empty = document.getElementById('emptyMsg');
+
+  if (!arr.length) {
+    tbody.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const transportMap = { car: '🚗', public: '🚌', bike: '🚲' };
+  const shiftMap = { day: '☀️ Dzienna', night: '🌙 Nocna', any: '🔄 Dowolna' };
+
+  tbody.innerHTML = arr.map((c, i) => `<tr>
+    <td style="color:#475569">${i+1}</td>
+    <td><strong>${c.name}</strong>${c.notes ? `<br><span style="font-size:0.72rem;color:#64748b;max-width:180px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${c.notes}">${c.notes}</span>` : ''}</td>
+    <td><a class="phone-link" href="tel:${c.phone}">${c.phone}</a>${c.email ? `<br><span style="font-size:0.72rem;color:#64748b">${c.email}</span>` : ''}</td>
+    <td>${jobBadge(c.jobType)}</td>
+    <td>${availBadge(c.availability)}</td>
+    <td style="font-size:0.8rem">${shiftMap[c.shift]||'—'}</td>
+    <td style="font-size:0.8rem">${c.languages||'—'}</td>
+    <td>${transportMap[c.transport]||'—'}</td>
+    <td style="font-size:0.8rem">${c.city||'—'}</td>
+    <td>${statusSel(c.id, c.status)}</td>
+    <td style="font-size:0.75rem;color:#64748b;white-space:nowrap">${new Date(c.timestamp).toLocaleDateString('pl-PL')}</td>
+    <td><button class="del-btn" onclick="deleteCandidate(${c.id})" title="Usuń">🗑️</button></td>
+  </tr>`).join('');
+}
+
+function exportCSV() {
+  const arr = getCandidates();
+  if (!arr.length) { alert('Brak kandydatów do eksportu.'); return; }
+  const headers = ['ID','Data','Imię i nazwisko','Telefon','Email','Praca','Dostępność','Zmiana','Języki','Transport','Miasto','Notatki','Status'];
+  const rows = arr.map(c => [
+    c.id, new Date(c.timestamp).toLocaleDateString('pl-PL'),
+    c.name, c.phone, c.email,
+    c.jobType, c.availability, c.shift,
+    c.languages, c.transport, c.city,
+    (c.notes||'').replace(/,/g,' '), c.status
+  ]);
+  const csv = [headers, ...rows].map(r => r.map(v => `"${v||''}"`).join(',')).join('\n');
+  const blob = new Blob(['﻿'+csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url;
+  a.download = `kandydaci_utrecht_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function clearAll() {
+  if (!confirm('Usunąć WSZYSTKICH kandydatów? Tej operacji nie można cofnąć!')) return;
+  localStorage.removeItem('candidates');
+  render();
+}
+</script>
+</body>
+</html>

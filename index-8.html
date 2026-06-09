@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Praca Utrecht — Work in Utrecht — Werk in Utrecht</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --orange: #f97316; --orange-dark: #ea580c; --green: #16a34a;
+    --bg: #fff; --text: #111827; --muted: #6b7280;
+    --border: #e5e7eb; --card: #f9fafb;
+  }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  /* LANG SWITCHER */
+  .lang-bar {
+    background: #0f2440; display: flex; justify-content: flex-end;
+    padding: 0.5rem 1.2rem; gap: 0.4rem; position: sticky; top: 0; z-index: 50;
+  }
+  .lang-btn {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: #cbd5e1; padding: 0.3rem 0.75rem; border-radius: 20px;
+    font-size: 0.82rem; font-weight: 600; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 0.3rem;
+  }
+  .lang-btn:hover { background: rgba(255,255,255,0.2); color: white; }
+  .lang-btn.active { background: var(--orange); border-color: var(--orange); color: white; }
+
+  /* HERO */
+  .hero {
+    background: linear-gradient(135deg, #1e3a5f 0%, #0f2440 100%);
+    color: white; text-align: center; padding: 2.5rem 1.5rem 3rem;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-flag { font-size: 2.5rem; margin-bottom: 0.8rem; }
+  .hero h1 { font-size: 1.9rem; font-weight: 800; line-height: 1.2; margin-bottom: 0.5rem; }
+  .hero h1 span { color: #f97316; }
+  .hero-sub { font-size: 1.05rem; color: #93c5fd; margin-bottom: 0.3rem; }
+
+  .badges {
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    justify-content: center; margin-top: 1.4rem;
+  }
+  .badge {
+    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+    color: white; padding: 0.4rem 0.9rem; border-radius: 20px;
+    font-size: 0.85rem; font-weight: 600;
+  }
+  .badge-green { background: #065f46; border-color: #059669; }
+
+  /* FORM */
+  .form-section { max-width: 540px; margin: 0 auto; padding: 1.5rem; }
+  .form-card {
+    background: white; border: 2px solid var(--border); border-radius: 16px;
+    padding: 1.8rem 1.5rem; box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+  }
+  .form-title { text-align: center; font-size: 1.2rem; font-weight: 700; color: #1e3a5f; margin-bottom: 1.4rem; }
+  .form-title span { color: var(--orange); }
+
+  .field { margin-bottom: 1rem; }
+  .field label { display: block; font-size: 0.85rem; font-weight: 600; color: #374151; margin-bottom: 0.35rem; }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border);
+    border-radius: 10px; font-size: 1rem; color: var(--text); background: white;
+    transition: border-color 0.2s; -webkit-appearance: none;
+  }
+  .field input:focus, .field select:focus, .field textarea:focus {
+    outline: none; border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.12);
+  }
+  .field textarea { resize: vertical; height: 80px; }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.35rem; }
+  .radio-option {
+    flex: 1; min-width: 110px; border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 0.6rem 0.8rem; cursor: pointer; transition: all 0.15s; text-align: center;
+    font-size: 0.9rem; font-weight: 500; background: white; color: var(--text); user-select: none;
+  }
+  .radio-option:hover { border-color: var(--orange); background: #fff7ed; }
+  .radio-option.selected { border-color: var(--orange); background: #fff7ed; color: var(--orange-dark); font-weight: 700; }
+  .radio-option input { display: none; }
+
+  .check-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.35rem; }
+  .check-option {
+    border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 0.5rem 0.9rem; cursor: pointer; font-size: 0.85rem;
+    font-weight: 500; transition: all 0.15s; background: white; user-select: none;
+  }
+  .check-option:hover { border-color: var(--green); }
+  .check-option.checked { border-color: var(--green); background: #f0fdf4; color: var(--green); font-weight: 700; }
+  .check-option input { display: none; }
+
+  .req { color: #ef4444; }
+
+  .submit-btn {
+    width: 100%; background: var(--orange); color: white; border: none;
+    border-radius: 12px; padding: 1rem; font-size: 1.1rem; font-weight: 800;
+    cursor: pointer; transition: background 0.2s; margin-top: 0.5rem;
+  }
+  .submit-btn:hover { background: var(--orange-dark); }
+  .submit-btn:active { transform: scale(0.98); }
+  .privacy { text-align: center; font-size: 0.75rem; color: var(--muted); margin-top: 0.8rem; }
+
+  /* SUCCESS */
+  .success-screen { display: none; text-align: center; padding: 2rem 1rem; }
+  .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+  .success-screen h2 { font-size: 1.5rem; color: var(--green); margin-bottom: 0.5rem; }
+  .success-screen p { color: var(--muted); margin-bottom: 0.3rem; }
+
+  /* WHY */
+  .why { background: var(--card); padding: 2rem 1.5rem; }
+  .why-inner { max-width: 540px; margin: 0 auto; }
+  .why h2 { font-size: 1.1rem; font-weight: 700; color: #1e3a5f; margin-bottom: 1rem; text-align: center; }
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+  .why-item { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 1rem; text-align: center; }
+  .why-item .icon { font-size: 1.8rem; margin-bottom: 0.4rem; }
+  .why-item .title { font-size: 0.85rem; font-weight: 700; color: var(--text); }
+
+  footer { text-align: center; padding: 1.5rem; font-size: 0.75rem; color: var(--muted); border-top: 1px solid var(--border); }
+  footer a { color: var(--orange); text-decoration: none; }
+
+  @media (max-width: 400px) {
+    .hero h1 { font-size: 1.5rem; }
+    .why-grid { grid-template-columns: 1fr; }
+    .radio-option { min-width: 90px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- LANGUAGE SWITCHER -->
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('pl')">🇵🇱 PL</button>
+  <button class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+  <button class="lang-btn" onclick="setLang('nl')">🇳🇱 NL</button>
+</div>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-flag">🇵🇱 🇬🇧 🇳🇱</div>
+  <h1 data-i18n="hero_title">Szukasz pracy<br>w <span>Utrechcie</span>?</h1>
+  <p class="hero-sub" data-i18n="hero_sub">Produkcja • Sprzątanie • Magazyn</p>
+  <div class="badges">
+    <span class="badge">📍 Utrecht & okolice</span>
+    <span class="badge badge-green" data-i18n="badge_legal">✓ Legalna praca</span>
+    <span class="badge" data-i18n="badge_weekly">💶 Płatne tygodniowo</span>
+    <span class="badge" data-i18n="badge_fast">🚀 Szybki start</span>
+  </div>
+</div>
+
+<!-- FORM -->
+<div class="form-section">
+  <div class="form-card" id="formCard">
+    <div class="form-title" data-i18n="form_title">📝 Zarejestruj się <span>za darmo</span></div>
+
+    <form id="candidateForm" novalidate>
+
+      <div class="field">
+        <label data-i18n="label_name">Imię i nazwisko <span class="req">*</span></label>
+        <input type="text" id="name" data-i18n-ph="ph_name" placeholder="Jan Kowalski" required autocomplete="name">
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_phone">Telefon <span class="req">*</span></label>
+        <input type="tel" id="phone" placeholder="+31 6 12 34 56 78" required autocomplete="tel">
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_email">Email (opcjonalnie)</label>
+        <input type="email" id="email" placeholder="jan@example.com" autocomplete="email">
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_jobtype">Rodzaj pracy <span class="req">*</span></label>
+        <div class="radio-group" id="jobTypeGroup">
+          <label class="radio-option" onclick="selectRadio('jobType','production',this)">
+            <input type="radio" name="jobType" value="production">
+            <span data-i18n="opt_production">⚙️ Produkcja</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('jobType','cleaning',this)">
+            <input type="radio" name="jobType" value="cleaning">
+            <span data-i18n="opt_cleaning">🧹 Sprzątanie</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('jobType','both',this)">
+            <input type="radio" name="jobType" value="both">
+            <span data-i18n="opt_both">✅ Oboje</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_avail">Dostępność <span class="req">*</span></label>
+        <div class="radio-group" id="availGroup">
+          <label class="radio-option" onclick="selectRadio('avail','now',this)">
+            <input type="radio" name="avail" value="now">
+            <span data-i18n="opt_now">🟢 Od zaraz</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('avail','week',this)">
+            <input type="radio" name="avail" value="week">
+            <span data-i18n="opt_week">📅 Za tydzień</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('avail','2weeks',this)">
+            <input type="radio" name="avail" value="2weeks">
+            <span data-i18n="opt_2weeks">⏳ Za 2 tyg.</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_shift">Zmiana</label>
+        <div class="radio-group" id="shiftGroup">
+          <label class="radio-option" onclick="selectRadio('shift','day',this)">
+            <input type="radio" name="shift" value="day">
+            <span data-i18n="opt_day">☀️ Dzienna</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('shift','night',this)">
+            <input type="radio" name="shift" value="night">
+            <span data-i18n="opt_night">🌙 Nocna</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('shift','any',this)">
+            <input type="radio" name="shift" value="any">
+            <span data-i18n="opt_anyshift">🔄 Dowolna</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_langs">Języki</label>
+        <div class="check-group" id="langGroup">
+          <label class="check-option checked" onclick="toggleCheck(this)">
+            <input type="checkbox" name="lang" value="pl" checked> 🇵🇱 Polski
+          </label>
+          <label class="check-option" onclick="toggleCheck(this)">
+            <input type="checkbox" name="lang" value="nl"> 🇳🇱 Nederlands
+          </label>
+          <label class="check-option" onclick="toggleCheck(this)">
+            <input type="checkbox" name="lang" value="en"> 🇬🇧 English
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_transport">Prawo jazdy / transport</label>
+        <div class="radio-group" id="transportGroup">
+          <label class="radio-option" onclick="selectRadio('transport','car',this)">
+            <input type="radio" name="transport" value="car">
+            <span data-i18n="opt_car">🚗 Własne auto</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('transport','public',this)">
+            <input type="radio" name="transport" value="public">
+            <span data-i18n="opt_public">🚌 Komunikacja</span>
+          </label>
+          <label class="radio-option" onclick="selectRadio('transport','bike',this)">
+            <input type="radio" name="transport" value="bike">
+            <span data-i18n="opt_bike">🚲 Rower</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_city">Miasto zamieszkania</label>
+        <input type="text" id="city" data-i18n-ph="ph_city" placeholder="Utrecht, Nieuwegein..." autocomplete="address-level2">
+      </div>
+
+      <div class="field">
+        <label data-i18n="label_notes">Krótko o sobie (opcjonalnie)</label>
+        <textarea id="notes" data-i18n-ph="ph_notes" placeholder="Np. 3 lata na produkcji, prawo jazdy B, mogę zacząć od zaraz..."></textarea>
+      </div>
+
+      <button type="submit" class="submit-btn" data-i18n="btn_submit">📩 Wyślij zgłoszenie</button>
+      <p class="privacy" data-i18n="privacy">🔒 Twoje dane są bezpieczne. Nie udostępniamy ich osobom trzecim.</p>
+    </form>
+  </div>
+
+  <div class="success-screen" id="successScreen">
+    <div class="success-icon">🎉</div>
+    <h2 data-i18n="success_title">Zgłoszenie wysłane!</h2>
+    <p data-i18n="success_sub"><strong>Skontaktujemy się z Tobą wkrótce.</strong></p>
+    <p style="margin-top:1.5rem; font-size:0.85rem; color:#6b7280" data-i18n="success_q">Masz pytania? Zadzwoń lub napisz na WhatsApp.</p>
+  </div>
+</div>
+
+<div class="why">
+  <div class="why-inner">
+    <h2 data-i18n="why_title">Dlaczego warto?</h2>
+    <div class="why-grid">
+      <div class="why-item"><div class="icon">💶</div><div class="title" data-i18n="why_1">Płatne tygodniowo</div></div>
+      <div class="why-item"><div class="icon">📋</div><div class="title" data-i18n="why_2">Legalna umowa</div></div>
+      <div class="why-item"><div class="icon">🚀</div><div class="title" data-i18n="why_3">Szybki start</div></div>
+      <div class="why-item"><div class="icon">🤝</div><div class="title" data-i18n="why_4">Wsparcie PL/NL/EN</div></div>
+    </div>
+  </div>
+</div>
+
+<footer>&copy; 2026 Praca Utrecht &nbsp;|&nbsp; <a href="admin.html">Panel</a></footer>
+
+<script>
+// ── TRANSLATIONS ────────────────────────────────────────────────
+const T = {
+  pl: {
+    hero_title:    'Szukasz pracy<br>w <span>Utrechcie</span>?',
+    hero_sub:      'Produkcja • Sprzątanie • Magazyn',
+    badge_legal:   '✓ Legalna praca',
+    badge_weekly:  '💶 Płatne tygodniowo',
+    badge_fast:    '🚀 Szybki start',
+    form_title:    '📝 Zarejestruj się <span>za darmo</span>',
+    label_name:    'Imię i nazwisko <span class="req">*</span>',
+    label_phone:   'Telefon <span class="req">*</span>',
+    label_email:   'Email (opcjonalnie)',
+    label_jobtype: 'Rodzaj pracy <span class="req">*</span>',
+    label_avail:   'Dostępność <span class="req">*</span>',
+    label_shift:   'Zmiana',
+    label_langs:   'Języki',
+    label_transport: 'Prawo jazdy / transport',
+    label_city:    'Miasto zamieszkania',
+    label_notes:   'Krótko o sobie (opcjonalnie)',
+    opt_production:'⚙️ Produkcja',
+    opt_cleaning:  '🧹 Sprzątanie',
+    opt_both:      '✅ Oboje',
+    opt_now:       '🟢 Od zaraz',
+    opt_week:      '📅 Za tydzień',
+    opt_2weeks:    '⏳ Za 2 tyg.',
+    opt_day:       '☀️ Dzienna',
+    opt_night:     '🌙 Nocna',
+    opt_anyshift:  '🔄 Dowolna',
+    opt_car:       '🚗 Własne auto',
+    opt_public:    '🚌 Komunikacja',
+    opt_bike:      '🚲 Rower',
+    btn_submit:    '📩 Wyślij zgłoszenie',
+    privacy:       '🔒 Twoje dane są bezpieczne. Nie udostępniamy ich osobom trzecim.',
+    success_title: 'Zgłoszenie wysłane!',
+    success_sub:   '<strong>Skontaktujemy się z Tobą wkrótce.</strong>',
+    success_q:     'Masz pytania? Zadzwoń lub napisz na WhatsApp.',
+    why_title:     'Dlaczego warto?',
+    why_1: 'Płatne tygodniowo', why_2: 'Legalna umowa',
+    why_3: 'Szybki start',      why_4: 'Wsparcie PL/NL/EN',
+    ph_name:  'Jan Kowalski',
+    ph_city:  'Utrecht, Nieuwegein...',
+    ph_notes: 'Np. 3 lata na produkcji, prawo jazdy B, mogę zacząć od zaraz...',
+    err_name: 'Wpisz imię i nazwisko.',
+    err_phone:'Wpisz numer telefonu.',
+    err_job:  'Wybierz rodzaj pracy.',
+    err_avail:'Wybierz dostępność.',
+  },
+  en: {
+    hero_title:    'Looking for work<br>in <span>Utrecht</span>?',
+    hero_sub:      'Production • Cleaning • Warehouse',
+    badge_legal:   '✓ Legal employment',
+    badge_weekly:  '💶 Weekly pay',
+    badge_fast:    '🚀 Quick start',
+    form_title:    '📝 Register <span>for free</span>',
+    label_name:    'Full name <span class="req">*</span>',
+    label_phone:   'Phone <span class="req">*</span>',
+    label_email:   'Email (optional)',
+    label_jobtype: 'Type of work <span class="req">*</span>',
+    label_avail:   'Availability <span class="req">*</span>',
+    label_shift:   'Shift',
+    label_langs:   'Languages',
+    label_transport: "Driver's licence / transport",
+    label_city:    'City of residence',
+    label_notes:   'About yourself (optional)',
+    opt_production:'⚙️ Production',
+    opt_cleaning:  '🧹 Cleaning',
+    opt_both:      '✅ Both',
+    opt_now:       '🟢 Immediately',
+    opt_week:      '📅 In 1 week',
+    opt_2weeks:    '⏳ In 2 weeks',
+    opt_day:       '☀️ Day shift',
+    opt_night:     '🌙 Night shift',
+    opt_anyshift:  '🔄 Any',
+    opt_car:       '🚗 Own car',
+    opt_public:    '🚌 Public transport',
+    opt_bike:      '🚲 Bicycle',
+    btn_submit:    '📩 Submit application',
+    privacy:       '🔒 Your data is safe. We do not share it with third parties.',
+    success_title: 'Application sent!',
+    success_sub:   '<strong>We will contact you soon.</strong>',
+    success_q:     'Questions? Call us or message on WhatsApp.',
+    why_title:     'Why choose us?',
+    why_1: 'Weekly pay',    why_2: 'Legal contract',
+    why_3: 'Quick start',   why_4: 'Support in PL/NL/EN',
+    ph_name:  'John Smith',
+    ph_city:  'Utrecht, Nieuwegein...',
+    ph_notes: 'E.g. 3 years in production, driving licence B, available immediately...',
+    err_name: 'Please enter your full name.',
+    err_phone:'Please enter your phone number.',
+    err_job:  'Please select a type of work.',
+    err_avail:'Please select availability.',
+  },
+  nl: {
+    hero_title:    'Op zoek naar werk<br>in <span>Utrecht</span>?',
+    hero_sub:      'Productie • Schoonmaak • Magazijn',
+    badge_legal:   '✓ Legaal werk',
+    badge_weekly:  '💶 Wekelijks uitbetaald',
+    badge_fast:    '🚀 Snel aan de slag',
+    form_title:    '📝 Registreer <span>gratis</span>',
+    label_name:    'Voor- en achternaam <span class="req">*</span>',
+    label_phone:   'Telefoonnummer <span class="req">*</span>',
+    label_email:   'E-mail (optioneel)',
+    label_jobtype: 'Soort werk <span class="req">*</span>',
+    label_avail:   'Beschikbaarheid <span class="req">*</span>',
+    label_shift:   'Dienst',
+    label_langs:   'Talen',
+    label_transport: 'Rijbewijs / vervoer',
+    label_city:    'Woonplaats',
+    label_notes:   'Over jezelf (optioneel)',
+    opt_production:'⚙️ Productie',
+    opt_cleaning:  '🧹 Schoonmaak',
+    opt_both:      '✅ Beide',
+    opt_now:       '🟢 Per direct',
+    opt_week:      '📅 Over 1 week',
+    opt_2weeks:    '⏳ Over 2 weken',
+    opt_day:       '☀️ Dagdienst',
+    opt_night:     '🌙 Nachtdienst',
+    opt_anyshift:  '🔄 Maakt niet uit',
+    opt_car:       '🚗 Eigen auto',
+    opt_public:    '🚌 Openbaar vervoer',
+    opt_bike:      '🚲 Fiets',
+    btn_submit:    '📩 Versturen',
+    privacy:       '🔒 Uw gegevens zijn veilig. Wij delen ze niet met derden.',
+    success_title: 'Aanmelding verzonden!',
+    success_sub:   '<strong>We nemen snel contact met je op.</strong>',
+    success_q:     'Vragen? Bel ons of stuur een WhatsApp-bericht.',
+    why_title:     'Waarom bij ons?',
+    why_1: 'Wekelijks betaald', why_2: 'Legaal contract',
+    why_3: 'Snel aan de slag',  why_4: 'Support in PL/NL/EN',
+    ph_name:  'Jan de Vries',
+    ph_city:  'Utrecht, Nieuwegein...',
+    ph_notes: 'Bijv. 3 jaar in productie, rijbewijs B, per direct beschikbaar...',
+    err_name: 'Vul uw naam in.',
+    err_phone:'Vul uw telefoonnummer in.',
+    err_job:  'Selecteer een soort werk.',
+    err_avail:'Selecteer uw beschikbaarheid.',
+  }
+};
+
+let currentLang = 'pl';
+
+function setLang(lang) {
+  currentLang = lang;
+  document.documentElement.lang = lang;
+
+  // Update buttons
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.getAttribute('onclick').includes(`'${lang}'`));
+  });
+
+  const t = T[lang];
+
+  // innerHTML elements
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    if (t[key] !== undefined) el.innerHTML = t[key];
+  });
+
+  // Placeholders
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const key = el.getAttribute('data-i18n-ph');
+    if (t[key] !== undefined) el.placeholder = t[key];
+  });
+}
+
+// ── FORM LOGIC ──────────────────────────────────────────────────
+const selectedValues = {};
+
+function selectRadio(name, value, el) {
+  selectedValues[name] = value;
+  el.closest('.radio-group').querySelectorAll('.radio-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  el.querySelector('input').checked = true;
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+
+document.getElementById('candidateForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  const t = T[currentLang];
+  const name  = document.getElementById('name').value.trim();
+  const phone = document.getElementById('phone').value.trim();
+
+  if (!name)                        { alert(t.err_name);  return; }
+  if (!phone)                       { alert(t.err_phone); return; }
+  if (!selectedValues['jobType'])   { alert(t.err_job);   return; }
+  if (!selectedValues['avail'])     { alert(t.err_avail); return; }
+
+  const langs = [...document.querySelectorAll('#langGroup input:checked')].map(i => i.value);
+
+  const candidate = {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    lang: currentLang,
+    name, phone,
+    email:        document.getElementById('email').value.trim(),
+    jobType:      selectedValues['jobType']    || '',
+    availability: selectedValues['avail']      || '',
+    shift:        selectedValues['shift']      || '',
+    transport:    selectedValues['transport']  || '',
+    languages:    langs.join(', '),
+    city:         document.getElementById('city').value.trim(),
+    notes:        document.getElementById('notes').value.trim(),
+    status: 'new'
+  };
+
+  const existing = JSON.parse(localStorage.getItem('candidates') || '[]');
+  existing.push(candidate);
+  localStorage.setItem('candidates', JSON.stringify(existing));
+
+  document.getElementById('formCard').style.display = 'none';
+  document.getElementById('successScreen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+</script>
+
+</body>
+</html>
